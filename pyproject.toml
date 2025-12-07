@@ -1,0 +1,15 @@
+[project]
+name = "gram-cli"
+version = "0.1.0"
+description = "CLI утилита Gram для анализа Python-кода"
+authors = [
+    { name = "NEFOR" }
+]
+requires-python = ">=3.8"
+dependencies = [
+    "click>=8.0"
+]
+
+
+[project.scripts]
+gram = "gram.__main__:cli"
