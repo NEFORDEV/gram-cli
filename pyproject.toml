@@ -1,6 +1,6 @@
 [project]
 name = "gram-cli"
-version = "0.1.1"
+version = "0.1.3"
 description = "CLI утилита Gram для анализа Python-кода"
 authors = [
     { name = "NEFOR" }
