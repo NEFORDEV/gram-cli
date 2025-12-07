@@ -11,6 +11,8 @@ def parse_args():
     parser.add_argument('--gpt', action='store_true', dest='gpt_flag')
     parser.add_argument('--pc', action='store_true', dest='pc_flag')
     parser.add_argument('--fiat', action='store_true', dest='fiat_flag')
+    parser.add_argument('--version', action='store_true', dest='version_flag')
+    parser.add_argument('--update', action='store_true', dest='update_flag')
     parser.add_argument('--help-commands', action='store_true', dest='help_commands_flag')
     
     try:
@@ -42,11 +44,22 @@ def main():
     from gram.gpt import gpt_chat
     from gram.system_info import show_pc_info
     from gram.crypto import show_fiat_info
+    from gram.version import show_version
+    from gram.updater import show_update
     from gram.help import show_detailed_help
     
     # Проверяем флаг справки по командам
     if args.help_commands_flag:
         show_detailed_help()
+        return
+    
+    # Проверяем специальные команды (без баннера)
+    if args.version_flag:
+        show_version()
+        return
+    
+    if args.update_flag:
+        show_update()
         return
     
     # Если нет аргументов, показываем красивую справку

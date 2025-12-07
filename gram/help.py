@@ -29,6 +29,8 @@ def show_quick_help():
         ("--gpt", "Интерактивный чат с GPT", "gram --gpt"),
         ("--pc", "Информация о системе ПК", "gram --pc"),
         ("--fiat", "Курсы валют и криптовалют", "gram --fiat"),
+        ("--version", "Показать версию пакета", "gram --version"),
+        ("--update", "Обновить до последней версии", "gram --update"),
         ("--help-commands", "Подробная документация", "gram --help-commands")
     ]
     
