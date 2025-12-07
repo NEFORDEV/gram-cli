@@ -96,6 +96,14 @@ def show_detailed_help():
             ]
         },
         {
+            "title": "🔧 Команды управления",
+            "color": "magenta",
+            "commands": [
+                ("--version", "Показать версию пакета"),
+                ("--update", "Обновить до последней версии")
+            ]
+        },
+        {
             "title": "🔍 Команды анализа",
             "color": "cyan", 
             "commands": [
@@ -136,9 +144,13 @@ def show_detailed_help():
         "   [dim]gram --pc[/dim]\n\n"
         "[bold cyan]4.[/bold cyan] Курсы валют:\n"
         "   [dim]gram --fiat[/dim]\n\n"
-        "[bold cyan]5.[/bold cyan] Анализ файла:\n"
+        "[bold cyan]5.[/bold cyan] Показать версию:\n"
+        "   [dim]gram --version[/dim]\n\n"
+        "[bold cyan]6.[/bold cyan] Обновить пакет:\n"
+        "   [dim]gram --update[/dim]\n\n"
+        "[bold cyan]7.[/bold cyan] Анализ файла:\n"
         "   [dim]gram --info main.py[/dim]\n\n"
-        "[bold cyan]6.[/bold cyan] Проверка качества:\n"
+        "[bold cyan]8.[/bold cyan] Проверка качества:\n"
         "   [dim]gram --lint app.py[/dim]\n\n",
         title="💡 Примеры использования",
         border_style="yellow"
