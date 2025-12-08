@@ -1,6 +1,7 @@
 """GPT чат - максимальный минимализм"""
 from rich.console import Console
 from rich.text import Text
+from rich.panel import Panel
 import time
 
 console = Console()
