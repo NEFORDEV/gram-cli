@@ -105,103 +105,120 @@ def show_pc_info():
     
     console.print("\n")
     
-    # Создаем заголовок
-    header_panel = Panel(
-        f"[bold bright_green]💻 Информация о системе[/bold bright_green]\n\n"
-        f"[dim]Детальная информация о вашем компьютере[/dim]",
-        title="🖥️ Системная информация",
+    # Создаем компактную сводку
+    summary_panel = Panel(
+        f"[bold bright_green]💻 {info_data.get('os', {}).get('name', 'Unknown')} {info_data.get('os', {}).get('version', '')}[/bold bright_green]\n"
+        f"[bold yellow]🐍 Python {info_data.get('python', {}).get('version_info', 'Unknown')}[/bold yellow]\n"
+        f"[bold cyan]🖥️ {info_data.get('cpu', {}).get('cores', 'Unknown')} ядер | {info_data.get('memory', {}).get('total', 'Unknown')} RAM[/bold cyan]",
+        title="🎯 Системная сводка",
         border_style="bright_blue"
     )
-    console.print(header_panel)
+    console.print(summary_panel)
     console.print("")
     
-    # Информация об ОС
+    # Основная информация в компактном виде
+    main_info_table = Table(title="📊 Основная информация", show_header=True)
+    main_info_table.add_column("🔧 Параметр", style="bold cyan", no_wrap=True)
+    main_info_table.add_column("📊 Значение", style="white")
+    main_info_table.add_column("💡 Статус", style="dim")
+    
+    # ОС и система
     os_info = info_data.get("os", {})
-    os_panel = Panel(
-        f"[bold cyan]🖥️ Операционная система:[/bold cyan] [yellow]{os_info.get('name', 'Unknown')}[/yellow]\n"
-        f"[bold cyan]📋 Версия:[/bold cyan] [white]{os_info.get('version', 'Unknown')}[/white]\n"
-        f"[bold cyan]🏗️ Архитектура:[/bold cyan] [green]{os_info.get('architecture', 'Unknown')}[/green]\n"
-        f"[bold cyan]💻 Платформа:[/bold cyan] [dim]{os_info.get('platform', 'Unknown')}[/dim]",
-        title="🖥️ Операционная система",
-        border_style="cyan"
+    main_info_table.add_row(
+        "🖥️ Операционная система",
+        f"{os_info.get('name', 'Unknown')} {os_info.get('version', '')}",
+        "✅"
     )
-    console.print(os_panel)
-    console.print("")
     
-    # Информация о Python
+    # Python
     python_info = info_data.get("python", {})
-    python_panel = Panel(
-        f"[bold yellow]🐍 Python версия:[/bold yellow] [white]{python_info.get('version_info', 'Unknown')}[/white]\n"
-        f"[bold yellow]📍 Исполняемый файл:[/bold yellow] [dim]{python_info.get('executable', 'Unknown')}[/dim]\n"
-        f"[bold yellow]📂 Путь:[/bold yellow] [dim]{python_info.get('path', 'Unknown')}[/dim]",
-        title="🐍 Python",
-        border_style="yellow"
+    main_info_table.add_row(
+        "🐍 Python версия",
+        python_info.get('version_info', 'Unknown'),
+        "✅"
     )
-    console.print(python_panel)
+    
+    # Архитектура
+    main_info_table.add_row(
+        "🏗️ Архитектура",
+        os_info.get('architecture', 'Unknown'),
+        "✅"
+    )
+    
+    # Сеть
+    network_info = info_data.get("network", {})
+    if "error" not in network_info:
+        main_info_table.add_row(
+            "🌐 Хостнейм",
+            network_info.get('hostname', 'Unknown'),
+            "✅"
+        )
+        main_info_table.add_row(
+            "📡 IP адрес",
+            network_info.get('local_ip', 'Unknown'),
+            "✅"
+        )
+    
+    console.print(main_info_table)
     console.print("")
     
-    # Создаем таблицу с остальной информацией
-    info_table = Table(title="📊 Дополнительная информация", show_header=True)
-    info_table.add_column("🔧 Компонент", style="bold magenta", no_wrap=True)
-    info_table.add_column("📊 Значение", style="white")
-    info_table.add_column("💡 Статус", style="dim")
+    # Производительность в компактном виде
+    perf_table = Table(title="⚡ Производительность", show_header=True)
+    perf_table.add_column("🔧 Компонент", style="bold yellow", no_wrap=True)
+    perf_table.add_column("📊 Показатель", style="white")
+    perf_table.add_column("💡 Статус", style="dim")
     
-    # Добавляем информацию о сети
-    network_info = info_data.get("network", {})
-    if "error" in network_info:
-        status = "❌"
-        value = network_info["error"]
-    else:
-        status = "✅"
-        value = f"Hostname: {network_info.get('hostname', 'Unknown')}\nIP: {network_info.get('local_ip', 'Unknown')}"
-    info_table.add_row("🌐 Сеть", value, status)
-    
-    # Добавляем информацию о дисках
-    disk_info = info_data.get("disks", {})
-    if "error" in disk_info:
-        status = "❌"
-        value = disk_info["error"]
-    else:
-        status = "✅"
-        value = f"Общий: {disk_info.get('total', 'Unknown')}\nИспользовано: {disk_info.get('used', 'Unknown')} ({disk_info.get('usage_percent', 'Unknown')})"
-    info_table.add_row("💾 Диски", value, status)
-    
-    # Добавляем информацию о памяти
-    memory_info = info_data.get("memory", {})
-    if "error" in memory_info:
-        status = "❌"
-        value = memory_info["error"]
-    elif "info" in memory_info:
-        status = "ℹ️"
-        value = memory_info["info"]
-    else:
-        status = "✅"
-        value = f"Общая: {memory_info.get('total', 'Unknown')}\nИспользуется: {memory_info.get('used', 'Unknown')} ({memory_info.get('percent', 'Unknown')})"
-    info_table.add_row("🧠 Память", value, status)
-    
-    # Добавляем информацию о процессоре
+    # CPU
     cpu_info = info_data.get("cpu", {})
-    if "error" in cpu_info:
-        status = "❌"
-        value = cpu_info["error"]
-    elif "info" in cpu_info:
-        status = "ℹ️"
-        value = cpu_info["info"]
-    else:
-        status = "✅"
-        value = f"Ядер: {cpu_info.get('cores', 'Unknown')}\nЧастота: {cpu_info.get('frequency', 'Unknown')}\nЗагрузка: {cpu_info.get('usage', 'Unknown')}"
-    info_table.add_row("⚡ Процессор", value, status)
+    if "error" not in cpu_info:
+        perf_table.add_row(
+            "⚡ Процессор",
+            f"{cpu_info.get('cores', 'Unknown')} ядер | {cpu_info.get('frequency', 'Unknown')}",
+            f"[green]{cpu_info.get('usage', 'Unknown')}[/green]"
+        )
     
-    console.print(info_table)
+    # Память
+    memory_info = info_data.get("memory", {})
+    if "error" not in memory_info:
+        perf_table.add_row(
+            "🧠 Оперативная память",
+            f"{memory_info.get('total', 'Unknown')} | Используется {memory_info.get('used', 'Unknown')} ({memory_info.get('percent', 'Unknown')})",
+            f"[green]{memory_info.get('percent', 'Unknown')}[/green]" if float(memory_info.get('percent', '0').replace('%', '')) < 80 else f"[yellow]{memory_info.get('percent', 'Unknown')}[/yellow]"
+        )
+    
+    # Диски
+    disk_info = info_data.get("disks", {})
+    if "error" not in disk_info:
+        perf_table.add_row(
+            "💾 Дисковое пространство",
+            f"Общее: {disk_info.get('total', 'Unknown')} | Свободно: {disk_info.get('free', 'Unknown')}",
+            f"[green]{disk_info.get('usage_percent', 'Unknown')}[/green]" if float(disk_info.get('usage_percent', '0').replace('%', '')) < 80 else f"[yellow]{disk_info.get('usage_percent', 'Unknown')}[/yellow]"
+        )
+    
+    console.print(perf_table)
+    console.print("")
+    
+    # Дополнительная информация
+    details_panel = Panel(
+        f"[bold cyan]📋 Детали системы:[/bold cyan]\n\n"
+        f"[dim]🖥️ Платформа:[/dim] {os_info.get('platform', 'Unknown')}\n"
+        f"[dim]🔧 Процессор:[/dim] {os_info.get('processor', 'Unknown')}\n"
+        f"[dim]🐍 Python путь:[/dim] {python_info.get('path', 'Unknown')}\n"
+        f"[dim]📍 Исполняемый файл:[/dim] {python_info.get('executable', 'Unknown')}\n\n"
+        f"[bold yellow]💡 Для детальной информации установите:[/bold yellow]\n"
+        f"[dim]pip install psutil[/dim]",
+        title="🔍 Детали",
+        border_style="green"
+    )
+    console.print(details_panel)
     console.print("")
     
     # Заключительная панель
-    summary_panel = Panel(
+    final_panel = Panel(
         "[bold green]✅ Сбор информации завершен![/bold green]\n\n"
-        "[dim]💡 Для получения детальной информации о памяти и процессоре установите:[/dim]\n"
-        "[cyan]pip install psutil[/cyan]",
+        "[dim]💡 Информация обновлена в реальном времени[/dim]",
         title="🎉 Готово!",
         border_style="green"
     )
-    console.print(summary_panel)
+    console.print(final_panel)
     console.print("")
