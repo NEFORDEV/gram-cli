@@ -1,17 +1,19 @@
 [project]
 name = "gram-cli"
-version = "0.1.1"
+version = "0.1.5"
 description = "CLI утилита Gram для анализа Python-кода"
 authors = [
     { name = "NEFOR" }
 ]
-requires-python = ">=3.8"
+requires-python = ">=3.10"
 dependencies = [
     "click>=8.0",
     "requests>=2.25.0",
     "toml>=0.10.0",
     "psutil>=5.8.0",
-    "rich>=12.0.0"
+    "rich>=12.0.0",
+    "g4f>=6.6.7",
+    "setuptools>=45.0"
 ]
 
 
