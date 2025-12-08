@@ -48,7 +48,7 @@ def show_version():
     info_table.add_column("📊 Значение", style="white")
     
     info_table.add_row("📦 Пакет", "gram-cli")
-    info_table.add_row("🐍 Python", ">=3.8")
+    info_table.add_row("🐍 Python", ">=3.10")
     info_table.add_row("📋 Лицензия", "MIT")
     info_table.add_row("🔧 Состояние", "[green]Активен[/green]")
     

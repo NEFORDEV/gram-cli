@@ -217,8 +217,8 @@ def main():
     """Главная функция CLI"""
     import sys
     
-    # Проверяем аргументы командной строки
-    if len(sys.argv) == 1 or '--help' in sys.argv or '-h' in sys.argv:
+    # Проверяем только на явный запрос справки
+    if '--help' in sys.argv or '-h' in sys.argv:
         from gram.help import show_quick_help
         show_quick_help()
         return
