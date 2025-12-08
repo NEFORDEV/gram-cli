@@ -1,4 +1,3 @@
-"""Анализ Python файлов"""
 import ast
 from pathlib import Path
 from rich.console import Console
@@ -8,7 +7,6 @@ from rich.table import Table
 console = Console()
 
 def show_info(path_str: str):
-    """Показывает информацию о Python файле или папке с Python файлами"""
     path = Path(path_str)
     
     if not path.exists():
@@ -21,11 +19,8 @@ def show_info(path_str: str):
         return
 
     if path.is_file() and path.suffix == ".py":
-
-        # Анализ одного файла
         analyze_single_file(path)
     elif path.is_dir():
-        # Анализ папки с Python файлами
         analyze_directory(path)
     else:
         warning_panel = Panel(
@@ -36,31 +31,26 @@ def show_info(path_str: str):
         console.print(warning_panel)
 
 def analyze_single_file(path):
-    """Анализ одного Python файла"""
     console.print(f"\n[bold cyan]🔍 Анализирую файл: [yellow]{path.name}[/yellow][/bold cyan]\n")
     
     code = path.read_text(encoding="utf-8")
     tree = ast.parse(code)
     
-    # Подсчитываем метрики
     funcs = sum(isinstance(n, ast.FunctionDef) for n in ast.walk(tree))
     classes = sum(isinstance(n, ast.ClassDef) for n in ast.walk(tree))
     lines = len(code.splitlines())
     imports = sum(isinstance(n, (ast.Import, ast.ImportFrom)) for n in ast.walk(tree))
     comments = code.count("#")
     
-    # Подсчитываем дополнительные метрики
     docstrings = sum(isinstance(n, (ast.FunctionDef, ast.ClassDef, ast.Module)) and 
                     (ast.get_docstring(n) is not None) for n in ast.walk(tree))
     async_funcs = sum(isinstance(n, ast.AsyncFunctionDef) for n in ast.walk(tree))
     
-    # Создаем красивую таблицу
     info_table = Table(title=f"📊 Статистика файла {path.name}", show_header=True)
     info_table.add_column("📈 Метрика", style="bold cyan", no_wrap=True)
     info_table.add_column("📊 Значение", style="bold white")
     info_table.add_column("💡 Оценка", style="dim")
     
-    # Функция для оценки значений
     def get_evaluation(metric, value):
         if metric == "Строк кода":
             if value < 50: return "[green]🟢 Отлично[/green]"
@@ -95,7 +85,6 @@ def analyze_single_file(path):
             else: return "[blue]🔵 Много async[/blue]"
         return "[dim]—[/dim]"
     
-    # Добавляем строки в таблицу
     metrics = [
         ("Строк кода", lines),
         ("Функций", funcs),
@@ -108,15 +97,10 @@ def analyze_single_file(path):
     
     for metric, value in metrics:
         evaluation = get_evaluation(metric, value)
-        info_table.add_row(
-            f"[bold]{metric}[/bold]",
-            f"[bold white]{value:,}[/bold white]" if isinstance(value, int) else str(value),
-            evaluation
-        )
+        info_table.add_row(f"[bold]{metric}[/bold]", f"[bold white]{value:,}[/bold white]" if isinstance(value, int) else str(value), evaluation)
     
     console.print(info_table)
     
-    # Дополнительная информация
     if lines > 0:
         comment_ratio = (comments / lines) * 100
         info_panel = Panel(
@@ -129,7 +113,6 @@ def analyze_single_file(path):
         console.print("\n")
         console.print(info_panel)
         
-        # Общая оценка кода
         score = 0
         if lines < 200: score += 1
         if funcs <= 15 and funcs > 0: score += 1
@@ -154,10 +137,8 @@ def analyze_single_file(path):
     console.print("\n")
 
 def analyze_directory(path):
-    """Анализ папки с Python файлами"""
     console.print(f"\n[bold cyan]🔍 Анализирую папку: [yellow]{path.name}[/yellow][/bold cyan]\n")
     
-    # Находим все Python файлы
     python_files = list(path.rglob("*.py"))
     
     if not python_files:
@@ -171,18 +152,7 @@ def analyze_directory(path):
     
     console.print(f"[dim]Найдено Python файлов: {len(python_files)}[/dim]\n")
     
-    # Собираем статистику по всем файлам
-    total_stats = {
-        "files": 0,
-        "total_lines": 0,
-        "total_funcs": 0,
-        "total_classes": 0,
-        "total_imports": 0,
-        "total_comments": 0,
-        "total_docstrings": 0,
-        "total_async": 0,
-        "total_size": 0
-    }
+    total_stats = {"files": 0, "total_lines": 0, "total_funcs": 0, "total_classes": 0, "total_imports": 0, "total_comments": 0, "total_docstrings": 0, "total_async": 0, "total_size": 0}
     
     file_details = []
     
@@ -191,17 +161,14 @@ def analyze_directory(path):
             code = py_file.read_text(encoding="utf-8")
             tree = ast.parse(code)
             
-            # Подсчитываем метрики для файла
             lines = len(code.splitlines())
             funcs = sum(isinstance(n, ast.FunctionDef) for n in ast.walk(tree))
             classes = sum(isinstance(n, ast.ClassDef) for n in ast.walk(tree))
             imports = sum(isinstance(n, (ast.Import, ast.ImportFrom)) for n in ast.walk(tree))
             comments = code.count("#")
-            docstrings = sum(isinstance(n, (ast.FunctionDef, ast.ClassDef, ast.Module)) and 
-                           (ast.get_docstring(n) is not None) for n in ast.walk(tree))
+            docstrings = sum(isinstance(n, (ast.FunctionDef, ast.ClassDef, ast.Module)) and (ast.get_docstring(n) is not None) for n in ast.walk(tree))
             async_funcs = sum(isinstance(n, ast.AsyncFunctionDef) for n in ast.walk(tree))
             
-            # Добавляем к общей статистике
             total_stats["files"] += 1
             total_stats["total_lines"] += lines
             total_stats["total_funcs"] += funcs
@@ -212,22 +179,11 @@ def analyze_directory(path):
             total_stats["total_async"] += async_funcs
             total_stats["total_size"] += py_file.stat().st_size
             
-            # Добавляем детали файла
-            file_details.append({
-                "name": py_file.name,
-                "path": str(py_file.relative_to(path)),
-                "lines": lines,
-                "funcs": funcs,
-                "classes": classes,
-                "imports": imports,
-                "comments": comments,
-                "size": py_file.stat().st_size / 1024
-            })
+            file_details.append({"name": py_file.name, "path": str(py_file.relative_to(path)), "lines": lines, "funcs": funcs, "classes": classes, "imports": imports, "comments": comments, "size": py_file.stat().st_size / 1024})
             
         except Exception as e:
             console.print(f"[red]Ошибка при анализе {py_file.name}: {str(e)}[/red]")
     
-    # Создаем сводную таблицу
     summary_table = Table(title=f"📊 Сводка по папке {path.name}", show_header=True)
     summary_table.add_column("📈 Показатель", style="bold cyan", no_wrap=True)
     summary_table.add_column("📊 Значение", style="bold white")
@@ -246,7 +202,6 @@ def analyze_directory(path):
     console.print(summary_table)
     console.print("")
     
-    # Создаем таблицу топ файлов
     if file_details:
         top_files_table = Table(title="📋 Топ файлов по размеру", show_header=True)
         top_files_table.add_column("📄 Файл", style="bold white")
@@ -254,25 +209,17 @@ def analyze_directory(path):
         top_files_table.add_column("⚡ Функций", style="yellow")
         top_files_table.add_column("💾 Размер", style="dim")
         
-        # Сортируем по размеру
         sorted_files = sorted(file_details, key=lambda x: x["size"], reverse=True)[:10]
         
         for file_info in sorted_files:
-            top_files_table.add_row(
-                f"[bold]{file_info['name']}[/bold]",
-                f"{file_info['lines']:,}",
-                f"{file_info['funcs']}",
-                f"{file_info['size']:.1f} KB"
-            )
+            top_files_table.add_row(f"[bold]{file_info['name']}[/bold]", f"{file_info['lines']:,}", f"{file_info['funcs']}", f"{file_info['size']:.1f} KB")
         
         console.print(top_files_table)
         console.print("")
     
-    # Общая оценка проекта
     if total_stats["total_lines"] > 0:
         comment_ratio = (total_stats["total_comments"] / total_stats["total_lines"]) * 100
         
-        # Простая оценка качества проекта
         score = 0
         if total_stats["total_lines"] < 1000: score += 1
         if total_stats["total_funcs"] / max(total_stats["files"], 1) < 10: score += 1
@@ -282,8 +229,7 @@ def analyze_directory(path):
         if total_stats["total_docstrings"] > 0: score += 1
         
         score_emojis = {0: "🔴", 1: "🔴", 2: "🟡", 3: "🟡", 4: "🟢", 5: "🟢", 6: "🌟"}
-        score_text = {0: "Требует улучшения", 1: "Нужны изменения", 2: "Удовлетворительно", 
-                     3: "Хорошо", 4: "Очень хорошо", 5: "Отлично", 6: "Превосходно"}
+        score_text = {0: "Требует улучшения", 1: "Нужны изменения", 2: "Удовлетворительно", 3: "Хорошо", 4: "Очень хорошо", 5: "Отлично", 6: "Превосходно"}
         
         score_panel = Panel(
             f"[bold {score // 2 and 'green' or 'yellow' if score >= 3 else 'red'}]"

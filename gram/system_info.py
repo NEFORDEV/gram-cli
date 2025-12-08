@@ -1,4 +1,4 @@
-"""Информация о системе ПК"""
+
 import platform
 import socket
 import os
@@ -12,10 +12,8 @@ from rich.progress import Progress, SpinnerColumn, TextColumn
 console = Console()
 
 def get_system_info():
-    """Получает полную информацию о системе"""
     info_data = {}
     
-    # Основная информация об ОС
     info_data["os"] = {
         "name": platform.system(),
         "version": platform.version(),
@@ -25,7 +23,6 @@ def get_system_info():
         "platform": platform.platform()
     }
     
-    # Информация о Python
     info_data["python"] = {
         "version": sys.version,
         "version_info": f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}",
@@ -33,7 +30,6 @@ def get_system_info():
         "path": sys.path[0] if sys.path else "Unknown"
     }
     
-    # Информация о сети
     try:
         hostname = socket.gethostname()
         local_ip = socket.gethostbyname(hostname)
@@ -45,7 +41,6 @@ def get_system_info():
     except:
         info_data["network"] = {"error": "Не удалось получить информацию о сети"}
     
-    # Информация о дисках
     try:
         import shutil
         total, used, free = shutil.disk_usage("/")
@@ -58,7 +53,6 @@ def get_system_info():
     except:
         info_data["disks"] = {"error": "Не удалось получить информацию о дисках"}
     
-    # Информация о памяти (если доступна)
     try:
         import psutil
         memory = psutil.virtual_memory()
@@ -73,7 +67,6 @@ def get_system_info():
     except:
         info_data["memory"] = {"error": "Не удалось получить информацию о памяти"}
     
-    # Информация о CPU (если доступна)
     try:
         import psutil
         cpu_count = psutil.cpu_count()
@@ -91,21 +84,14 @@ def get_system_info():
     return info_data
 
 def show_pc_info():
-    """Показывает красивую информацию о ПК"""
     console.print("\n[bold bright_cyan]💻 Собираю информацию о вашем ПК...[/bold bright_cyan]")
     
-    # Показываем анимацию загрузки
-    with Progress(
-        SpinnerColumn(),
-        TextColumn("[progress.description]{task.description}"),
-        console=console
-    ) as progress:
+    with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}"), console=console) as progress:
         task = progress.add_task("[bold green]🔍 Анализирую систему...", total=None)
         info_data = get_system_info()
     
     console.print("\n")
     
-    # Создаем компактную сводку
     summary_panel = Panel(
         f"[bold bright_green]💻 {info_data.get('os', {}).get('name', 'Unknown')} {info_data.get('os', {}).get('version', '')}[/bold bright_green]\n"
         f"[bold yellow]🐍 Python {info_data.get('python', {}).get('version_info', 'Unknown')}[/bold yellow]\n"
@@ -116,89 +102,51 @@ def show_pc_info():
     console.print(summary_panel)
     console.print("")
     
-    # Основная информация в компактном виде
     main_info_table = Table(title="📊 Основная информация", show_header=True)
     main_info_table.add_column("🔧 Параметр", style="bold cyan", no_wrap=True)
     main_info_table.add_column("📊 Значение", style="white")
     main_info_table.add_column("💡 Статус", style="dim")
     
-    # ОС и система
     os_info = info_data.get("os", {})
-    main_info_table.add_row(
-        "🖥️ Операционная система",
-        f"{os_info.get('name', 'Unknown')} {os_info.get('version', '')}",
-        "✅"
-    )
-    
-    # Python
     python_info = info_data.get("python", {})
-    main_info_table.add_row(
-        "🐍 Python версия",
-        python_info.get('version_info', 'Unknown'),
-        "✅"
-    )
-    
-    # Архитектура
-    main_info_table.add_row(
-        "🏗️ Архитектура",
-        os_info.get('architecture', 'Unknown'),
-        "✅"
-    )
-    
-    # Сеть
     network_info = info_data.get("network", {})
+    
+    main_info_table.add_row("🖥️ Операционная система", f"{os_info.get('name', 'Unknown')} {os_info.get('version', '')}", "✅")
+    main_info_table.add_row("🐍 Python версия", python_info.get('version_info', 'Unknown'), "✅")
+    main_info_table.add_row("🏗️ Архитектура", os_info.get('architecture', 'Unknown'), "✅")
+    
     if "error" not in network_info:
-        main_info_table.add_row(
-            "🌐 Хостнейм",
-            network_info.get('hostname', 'Unknown'),
-            "✅"
-        )
-        main_info_table.add_row(
-            "📡 IP адрес",
-            network_info.get('local_ip', 'Unknown'),
-            "✅"
-        )
+        main_info_table.add_row("🌐 Хостнейм", network_info.get('hostname', 'Unknown'), "✅")
+        main_info_table.add_row("📡 IP адрес", network_info.get('local_ip', 'Unknown'), "✅")
     
     console.print(main_info_table)
     console.print("")
     
-    # Производительность в компактном виде
     perf_table = Table(title="⚡ Производительность", show_header=True)
     perf_table.add_column("🔧 Компонент", style="bold yellow", no_wrap=True)
     perf_table.add_column("📊 Показатель", style="white")
     perf_table.add_column("💡 Статус", style="dim")
     
-    # CPU
     cpu_info = info_data.get("cpu", {})
-    if "error" not in cpu_info:
-        perf_table.add_row(
-            "⚡ Процессор",
-            f"{cpu_info.get('cores', 'Unknown')} ядер | {cpu_info.get('frequency', 'Unknown')}",
-            f"[green]{cpu_info.get('usage', 'Unknown')}[/green]"
-        )
-    
-    # Память
     memory_info = info_data.get("memory", {})
-    if "error" not in memory_info:
-        perf_table.add_row(
-            "🧠 Оперативная память",
-            f"{memory_info.get('total', 'Unknown')} | Используется {memory_info.get('used', 'Unknown')} ({memory_info.get('percent', 'Unknown')})",
-            f"[green]{memory_info.get('percent', 'Unknown')}[/green]" if float(memory_info.get('percent', '0').replace('%', '')) < 80 else f"[yellow]{memory_info.get('percent', 'Unknown')}[/yellow]"
-        )
-    
-    # Диски
     disk_info = info_data.get("disks", {})
+    
+    if "error" not in cpu_info:
+        perf_table.add_row("⚡ Процессор", f"{cpu_info.get('cores', 'Unknown')} ядер | {cpu_info.get('frequency', 'Unknown')}", f"[green]{cpu_info.get('usage', 'Unknown')}[/green]")
+    
+    if "error" not in memory_info:
+        memory_percent = float(memory_info.get('percent', '0').replace('%', ''))
+        color = "green" if memory_percent < 80 else "yellow"
+        perf_table.add_row("🧠 Оперативная память", f"{memory_info.get('total', 'Unknown')} | Используется {memory_info.get('used', 'Unknown')} ({memory_info.get('percent', 'Unknown')})", f"[{color}]{memory_info.get('percent', 'Unknown')}[/{color}]")
+    
     if "error" not in disk_info:
-        perf_table.add_row(
-            "💾 Дисковое пространство",
-            f"Общее: {disk_info.get('total', 'Unknown')} | Свободно: {disk_info.get('free', 'Unknown')}",
-            f"[green]{disk_info.get('usage_percent', 'Unknown')}[/green]" if float(disk_info.get('usage_percent', '0').replace('%', '')) < 80 else f"[yellow]{disk_info.get('usage_percent', 'Unknown')}[/yellow]"
-        )
+        disk_percent = float(disk_info.get('usage_percent', '0').replace('%', ''))
+        color = "green" if disk_percent < 80 else "yellow"
+        perf_table.add_row("💾 Дисковое пространство", f"Общее: {disk_info.get('total', 'Unknown')} | Свободно: {disk_info.get('free', 'Unknown')}", f"[{color}]{disk_info.get('usage_percent', 'Unknown')}[/{color}]")
     
     console.print(perf_table)
     console.print("")
     
-    # Дополнительная информация
     details_panel = Panel(
         f"[bold cyan]📋 Детали системы:[/bold cyan]\n\n"
         f"[dim]🖥️ Платформа:[/dim] {os_info.get('platform', 'Unknown')}\n"
@@ -213,7 +161,6 @@ def show_pc_info():
     console.print(details_panel)
     console.print("")
     
-    # Заключительная панель
     final_panel = Panel(
         "[bold green]✅ Сбор информации завершен![/bold green]\n\n"
         "[dim]💡 Информация обновлена в реальном времени[/dim]",
